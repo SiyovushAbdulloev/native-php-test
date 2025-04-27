@@ -14,17 +14,48 @@ class CourseRepository
         $this->db = Connection::getInstance();
     }
 
-    public function getAll(?string $category): array
+    public function getAll(?string $category = null): array
     {
+        $sql = "
+            WITH RECURSIVE category_path (id, name, parent_id, root_id, root_name) AS (
+              SELECT
+                id,
+                name,
+                parent_id,
+                id AS root_id,
+                name AS root_name
+              FROM categories
+              WHERE parent_id IS NULL
+    
+              UNION ALL
+    
+              SELECT
+                c.id,
+                c.name,
+                c.parent_id,
+                cp.root_id,
+                cp.root_name
+              FROM categories c
+              INNER JOIN category_path cp ON c.parent_id = cp.id
+            )
+            SELECT
+              courses.*,
+              cp.root_name AS main_category
+            FROM courses
+            LEFT JOIN category_path cp ON courses.category_id = cp.id
+        ";
+
+        $params = [];
+
         if (!empty($category)) {
-            $stmt = $this->db->prepare('SELECT * FROM courses WHERE category_id = :category_id');
-            $stmt->execute(['category_id' => $category]);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } else {
-            $stmt = $this->db->prepare('SELECT * FROM courses');
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $sql .= ' WHERE courses.category_id = :category_id';
+            $params['category_id'] = $category;
         }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getById(string $id): ?array
