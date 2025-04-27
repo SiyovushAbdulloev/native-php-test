@@ -42,12 +42,12 @@
     async function fetchSidebar() {
       try {
         const sidebarLoader = document.querySelector('.sidebar .loader')
+        sidebarLoader.style.display = 'block'
         const sidebar = document.querySelector('.sidebar .items');
         const categoryResponse = await fetch('http://api.cc.localhost/public/categories');
         const categories = await categoryResponse.json();
 
         sidebar.innerHTML = '';
-        sidebarLoader.style.display = 'block'
 
         buildSidebar(categories, sidebar, 0);
 
@@ -56,6 +56,7 @@
         console.error(e)
         const sidebarError = document.querySelector('.sidebar .error')
         sidebarError.style.display = 'block'
+        sidebarLoader.style.display = 'none'
       }
     }
 
@@ -69,18 +70,18 @@
         const courseResponse = await fetch(`http://api.cc.localhost/public/courses?category=${searchCategory}`);
         const courses = await courseResponse.json();
 
-        mainLoader.style.display = 'none'
-
         courseContainer.innerHTML = '';
         if (courses.length) {
           buildCourses(courses, courseContainer);
         } else {
           noData.style.display = 'block'
         }
+        mainLoader.style.display = 'none'
       } catch (e) {
         console.error(e)
         const mainError = document.querySelector('.main .error')
         mainError.style.display = 'block'
+        mainLoader.style.display = 'none'
       }
     }
 
@@ -139,10 +140,10 @@
         const footer = document.createElement('footer');
 
         const title = document.createElement('h4');
-        title.textContent = course.title.length > 50 ? course.title.slice(0, 50) + '...' : course.title;
+        title.textContent = (course.title.length > 50 && !isTablet()) ? course.title.slice(0, 50) + '...' : course.title;
 
         const description = document.createElement('p');
-        description.textContent = course.description.length > 150 ? course.description.slice(0, 150) + '...' : course.description;
+        description.textContent = (course.description.length > 150 && !isTablet()) ? course.description.slice(0, 150) + '...' : course.description;
 
         footer.appendChild(title);
         footer.appendChild(description);
@@ -153,6 +154,11 @@
 
         parentElement.appendChild(courseDiv);
       });
+    }
+
+    function isTablet() {
+      const width = window.innerWidth;
+      return width <= 1000;
     }
   </script>
 </body>

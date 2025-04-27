@@ -101,3 +101,13 @@ main .wrapper {
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
 }
+
+@media screen and (max-width: 1001px) {
+  .main .courses .course {
+    width: 100%;
+  }
+
+  .main .courses .course img {
+    height: 280px;
+  }
+}
