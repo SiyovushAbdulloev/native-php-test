@@ -15,7 +15,9 @@ main .wrapper {
 }
 
 .sidebar .loader,
-.sidebar .error {
+.sidebar .error,
+.main .loader,
+.main .error {
   display: none;
 }
 
@@ -33,6 +35,11 @@ main .wrapper {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: fit-content;
+}
+
+.sidebar .items .item.active > .title {
+  background: #a7c9f1;
 }
 
 .sidebar .items .item .label {
@@ -49,6 +56,13 @@ main .wrapper {
   font-size: 30px;
   line-height: 28px;
   text-align: center;
+}
+
+.main h2.no-data {
+  display: none;
+  text-align: center;
+  padding-top: 100px;
+  font-size: 50px;
 }
 
 .main .courses {

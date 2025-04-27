@@ -22,39 +22,12 @@
       </section>
       <section class="main">
         <h1>Course catalog</h1>
+        <h2 class="no-data">No courses</h2>
+        <h2 class="error">Something went wrong</h2>
+        <span class="loader">
+          <svg xmlns="http://www.w3.org/2000/svg" width="100px" height="100px" viewBox="0 0 200 200"><radialGradient id="a7" cx=".66" fx=".66" cy=".3125" fy=".3125" gradientTransform="scale(1.5)"><stop offset="0" stop-color="#000000"></stop><stop offset=".3" stop-color="#000000" stop-opacity=".9"></stop><stop offset=".6" stop-color="#000000" stop-opacity=".6"></stop><stop offset=".8" stop-color="#000000" stop-opacity=".3"></stop><stop offset="1" stop-color="#000000" stop-opacity="0"></stop></radialGradient><circle transform-origin="center" fill="none" stroke="url(#a7)" stroke-width="10" stroke-linecap="round" stroke-dasharray="200 1000" stroke-dashoffset="0" cx="100" cy="100" r="70"><animateTransform type="rotate" attributeName="transform" calcMode="spline" dur="2" values="360;0" keyTimes="0;1" keySplines="0 0 1 1" repeatCount="indefinite"></animateTransform></circle><circle transform-origin="center" fill="none" opacity=".2" stroke="#000000" stroke-width="10" stroke-linecap="round" cx="100" cy="100" r="70"></circle></svg>
+        </span>
         <div class="courses">
-          <div class="course">
-            <span class="category">Business</span>
-            <img src="/images/desktop.png" alt="Desktop" />
-            <footer>
-              <h4>Lorem ipsum dolor sit amet...</h4>
-              <p>Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet</p>
-            </footer>
-          </div>
-          <div class="course">
-            <span class="category">Business</span>
-            <img src="/images/desktop.png" alt="Desktop" />
-            <footer>
-              <h4>Lorem ipsum dolor sit amet...</h4>
-              <p>Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet</p>
-            </footer>
-          </div>
-          <div class="course">
-            <span class="category">Business</span>
-            <img src="/images/desktop.png" alt="Desktop" />
-            <footer>
-              <h4>Lorem ipsum dolor sit amet...</h4>
-              <p>Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet</p>
-            </footer>
-          </div>
-          <div class="course">
-            <span class="category">Business</span>
-            <img src="/images/desktop.png" alt="Desktop" />
-            <footer>
-              <h4>Lorem ipsum dolor sit amet...</h4>
-              <p>Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet</p>
-            </footer>
-          </div>
         </div>
       </section>
     </div>
@@ -62,12 +35,16 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', async function () {
+      await fetchSidebar()
+      await fetchCourses()
+    });
+
+    async function fetchSidebar() {
       try {
         const sidebarLoader = document.querySelector('.sidebar .loader')
-        const response = await fetch('http://api.cc.localhost/public/categories');
-        const categories = await response.json();
-
         const sidebar = document.querySelector('.sidebar .items');
+        const categoryResponse = await fetch('http://api.cc.localhost/public/categories');
+        const categories = await categoryResponse.json();
 
         sidebar.innerHTML = '';
         sidebarLoader.style.display = 'block'
@@ -76,27 +53,60 @@
 
         sidebarLoader.style.display = 'none'
       } catch (e) {
+        console.error(e)
         const sidebarError = document.querySelector('.sidebar .error')
         sidebarError.style.display = 'block'
       }
-    });
+    }
+
+    async function fetchCourses() {
+      try {
+        const mainLoader = document.querySelector('.main .loader')
+        mainLoader.style.display = 'block'
+        const searchCategory = new URLSearchParams(window.location.search).get('category') ?? ''
+        const courseContainer = document.querySelector('.main .courses');
+        const noData = document.querySelector('.main h2.no-data')
+        const courseResponse = await fetch(`http://api.cc.localhost/public/courses?category=${searchCategory}`);
+        const courses = await courseResponse.json();
+
+        mainLoader.style.display = 'none'
+
+        courseContainer.innerHTML = '';
+        if (courses.length) {
+          buildCourses(courses, courseContainer);
+        } else {
+          noData.style.display = 'block'
+        }
+      } catch (e) {
+        console.error(e)
+        const mainError = document.querySelector('.main .error')
+        mainError.style.display = 'block'
+      }
+    }
 
     function buildSidebar(categories, parentElement, depth) {
       categories.forEach(category => {
         const li = document.createElement('li');
         li.style.cursor = 'pointer'
         li.classList.add('item');
+        const searchCategory = new URLSearchParams(window.location.search).get('category')
+        if (searchCategory === category.id) {
+          li.classList.add('active')
+        }
 
         const span = document.createElement('span');
-        span.textContent = category.name;
+        span.classList.add('title')
+        const link = document.createElement('a')
+        link.href = `/?category=${category.id}`
+        link.textContent = category.name
+        span.appendChild(link);
 
-        // Apply padding-left based on depth
         span.style.paddingLeft = `${depth * 15}px`;
 
-        if (category.children && category.children.length > 0) {
+        if (category.courses_count > 0) {
           const label = document.createElement('span');
           label.classList.add('label');
-          label.textContent = `(${category.children.length})`;
+          label.textContent = ` (${category.courses_count})`;
           span.appendChild(label);
         }
 
@@ -110,6 +120,38 @@
         }
 
         parentElement.appendChild(li);
+      });
+    }
+
+    function buildCourses(courses, parentElement) {
+      courses.forEach(course => {
+        const courseDiv = document.createElement('div');
+        courseDiv.classList.add('course');
+
+        const categorySpan = document.createElement('span');
+        categorySpan.classList.add('category');
+        categorySpan.textContent = course.category;
+
+        const img = document.createElement('img');
+        img.src = course.image_preview || '/images/desktop.png';
+        img.alt = course.title;
+
+        const footer = document.createElement('footer');
+
+        const title = document.createElement('h4');
+        title.textContent = course.title.length > 50 ? course.title.slice(0, 50) + '...' : course.title;
+
+        const description = document.createElement('p');
+        description.textContent = course.description.length > 150 ? course.description.slice(0, 150) + '...' : course.description;
+
+        footer.appendChild(title);
+        footer.appendChild(description);
+
+        courseDiv.appendChild(categorySpan);
+        courseDiv.appendChild(img);
+        courseDiv.appendChild(footer);
+
+        parentElement.appendChild(courseDiv);
       });
     }
   </script>

@@ -3,6 +3,7 @@
 namespace Src;
 
 use Src\Controller\CategoryController;
+use Src\Controller\CourseController;
 
 class Router {
     public static function route() {
@@ -15,6 +16,24 @@ class Router {
             if (in_array($uri, ['/public/categories', '/public/categories/']) && $method === 'GET') {
                 $controller->index();
             } elseif (preg_match('#^/public/categories/([a-f0-9\-]+)$#', $uri, $matches)) {
+                $id = $matches[1];
+
+                if ($method === 'GET') {
+                    $controller->show($id);
+                } else {
+                    self::notFound();
+                }
+            } else {
+                self::notFound();
+            }
+        }
+        if (str_starts_with($uri, '/public/courses')) {
+            $controller = new CourseController();
+
+            if (in_array($uri, ['/public/courses', '/public/courses/']) && $method === 'GET') {
+                $category = $_GET['category'] ?? '';
+                $controller->index($category);
+            } elseif (preg_match('#^/public/courses/([a-f0-9\-]+)$#', $uri, $matches)) {
                 $id = $matches[1];
 
                 if ($method === 'GET') {

@@ -10,10 +10,9 @@ CREATE TABLE `categories` (
 
 CREATE TABLE `courses` (
     `id` VARCHAR(36) PRIMARY KEY,
-    `name` VARCHAR(255) NOT NULL,
+    `title` VARCHAR(255) NOT NULL,
     `description` TEXT,
-    `preview` VARCHAR(255),
-    `main_category_name` VARCHAR(255),
+    `image_preview` VARCHAR(255),
     `category_id` VARCHAR(36) NOT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

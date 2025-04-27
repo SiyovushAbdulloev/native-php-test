@@ -16,7 +16,7 @@ class CategoryRepository
 
     public function getAll(): array
     {
-        $stmt = $this->db->query('SELECT * FROM categories');
+        $stmt = $this->db->query('SELECT *, (SELECT COUNT(*) FROM courses where courses.category_id = categories.id ) as courses_count FROM categories');
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
