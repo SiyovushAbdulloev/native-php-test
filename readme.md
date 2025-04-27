@@ -35,7 +35,7 @@ API host: http://api.cc.localhost
 
 DB host: http://db.cc.localhost
 
-Front host: http://cc.localhost
+Front host: http://cc.localhost/public
 
 Traefik dashboard: http://127.0.0.1:8080/dashboard/#/
 
@@ -43,3 +43,12 @@ Traefik dashboard: http://127.0.0.1:8080/dashboard/#/
 DB credentials - look at the docker-compose.yml
 
 Api docs are in swagger.yml
+
+
+## Run seeders
+```
+php api/seeders/category.php
+```
+```
+php api/seeders/course.php
+```
