@@ -14,6 +14,11 @@ main .wrapper {
   padding-top: 60px;
 }
 
+.sidebar .loader,
+.sidebar .error {
+  display: none;
+}
+
 .sidebar .items {
   display: flex;
   flex-direction: column;

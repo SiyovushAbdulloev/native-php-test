@@ -1,18 +1,25 @@
 -- up
-CREATE TABLE `skills` (
-    `id` VARCHAR(255),
+CREATE TABLE `categories` (
+    `id` VARCHAR(36) PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL,
+    `parent_id` VARCHAR(36) DEFAULT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`)
+    FOREIGN KEY (`parent_id`) REFERENCES `categories`(`id`) ON DELETE SET NULL
 );
 
-INSERT INTO `skills` (`id`, `name`)
-VALUES ('91aad7bb-5885-4a25-bbdc-046dd4b2a9e6', 'PHP'),
-       ('c4064741-d191-49c5-b141-7943d063cfc3', 'MySQL'),
-       ('f1b3b3b4-4b1b-4b1b-8b1b-4b1b4b1b4b1b', 'JavaScript'),
-       ('f1b3b3b4-4b1b-4b1b-8b1b-4b1b4b1b4b1b', 'HTML'),
-       ('f1b3b3b4-4b1b-4b1b-8b1b-4b1b4b1b4b1b', 'CSS');
+CREATE TABLE `courses` (
+    `id` VARCHAR(36) PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL,
+    `description` TEXT,
+    `preview` VARCHAR(255),
+    `main_category_name` VARCHAR(255),
+    `category_id` VARCHAR(36) NOT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE
+);
 
 -- down
-DROP TABLE `skills`;
+DROP TABLE IF EXISTS `courses`;
+DROP TABLE IF EXISTS `categories`;

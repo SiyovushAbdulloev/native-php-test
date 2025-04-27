@@ -13,37 +13,11 @@
   <main>
     <div class="wrapper">
       <section class="sidebar">
+        <h2 class="error">Something went wrong</h2>
+        <span class="loader">
+          <svg xmlns="http://www.w3.org/2000/svg" width="100px" height="100px" viewBox="0 0 200 200"><radialGradient id="a7" cx=".66" fx=".66" cy=".3125" fy=".3125" gradientTransform="scale(1.5)"><stop offset="0" stop-color="#000000"></stop><stop offset=".3" stop-color="#000000" stop-opacity=".9"></stop><stop offset=".6" stop-color="#000000" stop-opacity=".6"></stop><stop offset=".8" stop-color="#000000" stop-opacity=".3"></stop><stop offset="1" stop-color="#000000" stop-opacity="0"></stop></radialGradient><circle transform-origin="center" fill="none" stroke="url(#a7)" stroke-width="10" stroke-linecap="round" stroke-dasharray="200 1000" stroke-dashoffset="0" cx="100" cy="100" r="70"><animateTransform type="rotate" attributeName="transform" calcMode="spline" dur="2" values="360;0" keyTimes="0;1" keySplines="0 0 1 1" repeatCount="indefinite"></animateTransform></circle><circle transform-origin="center" fill="none" opacity=".2" stroke="#000000" stroke-width="10" stroke-linecap="round" cx="100" cy="100" r="70"></circle></svg>
+        </span>
         <ul class="items">
-          <li class="item">
-            <span>
-              Technology <span class="label">(3)</span>
-            </span>
-            <ul class="items">
-              <li class="item" style="padding-left: 15px;">
-                Software Development
-              </li>
-            </ul>
-          </li>
-          <li class="item">
-            <span>
-              Technology
-            </span>
-            <ul class="items">
-              <li class="item" style="padding-left: 15px;">
-                Software Development
-              </li>
-            </ul>
-          </li>
-          <li class="item">
-            <span>
-              Technology <span class="label">(8)</span>
-            </span>
-            <ul class="items">
-              <li class="item" style="padding-left: 15px;">
-                Software Development
-              </li>
-            </ul>
-          </li>
         </ul>
       </section>
       <section class="main">
@@ -85,5 +59,59 @@
       </section>
     </div>
   </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async function () {
+      try {
+        const sidebarLoader = document.querySelector('.sidebar .loader')
+        const response = await fetch('http://api.cc.localhost/public/categories');
+        const categories = await response.json();
+
+        const sidebar = document.querySelector('.sidebar .items');
+
+        sidebar.innerHTML = '';
+        sidebarLoader.style.display = 'block'
+
+        buildSidebar(categories, sidebar, 0);
+
+        sidebarLoader.style.display = 'none'
+      } catch (e) {
+        const sidebarError = document.querySelector('.sidebar .error')
+        sidebarError.style.display = 'block'
+      }
+    });
+
+    function buildSidebar(categories, parentElement, depth) {
+      categories.forEach(category => {
+        const li = document.createElement('li');
+        li.style.cursor = 'pointer'
+        li.classList.add('item');
+
+        const span = document.createElement('span');
+        span.textContent = category.name;
+
+        // Apply padding-left based on depth
+        span.style.paddingLeft = `${depth * 15}px`;
+
+        if (category.children && category.children.length > 0) {
+          const label = document.createElement('span');
+          label.classList.add('label');
+          label.textContent = `(${category.children.length})`;
+          span.appendChild(label);
+        }
+
+        li.appendChild(span);
+
+        if (category.children && category.children.length > 0) {
+          const ul = document.createElement('ul');
+          ul.classList.add('items');
+          buildSidebar(category.children, ul, depth + 1); // Increase depth
+          li.appendChild(ul);
+        }
+
+        parentElement.appendChild(li);
+      });
+    }
+  </script>
 </body>
 </html>

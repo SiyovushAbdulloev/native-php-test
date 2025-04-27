@@ -33,12 +33,15 @@ services:
       - 8001:3306
 
   api:
-    image: php:8.3-apache
+    build:
+      context: ./
+      dockerfile: docker/php/Dockerfile
     container_name: api
     depends_on:
       - db
     volumes:
-      - ./api/:/var/www/html/
+      - ./api:/var/www/html/
+      - ./api/apache.conf:/etc/apache2/sites-enabled/000-default.conf
     stdin_open: true
     tty: true
     hostname: api.cc.localhost
@@ -53,6 +56,6 @@ services:
       - ./front_end/:/var/www/html/
     stdin_open: true
     tty: true
-    hostname: api.cc.localhost
+    hostname: cc.localhost
     labels:
       - traefik.http.routers.front.rule=Host(`cc.localhost`)

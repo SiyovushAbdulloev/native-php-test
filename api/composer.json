@@ -1,0 +1,16 @@
+{
+    "name": "siyovush/api",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Src\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Siyovush",
+            "email": "siyovush.2000.abdulloev@gmail.com"
+        }
+    ],
+    "require": {}
+}
